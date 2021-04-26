@@ -11,6 +11,9 @@ import {
   MenuRadioItem,
   MenuItemIndicator,
   MenuSeparator,
+  MenuSubMenu,
+  MenuSubMenuContent,
+  MenuSubMenuTrigger,
 } from './Menu';
 import { css } from '../../../../stitches.config';
 import { foodGroups } from '../../../../test-data/foods';
@@ -251,6 +254,100 @@ export const Animated = () => {
   );
 };
 
+export const Submenus = () => {
+  const files = ['README.md', 'index.js', 'page.css'];
+  const [file, setFile] = React.useState(files[1]);
+  const checkboxItems = [
+    { label: 'Bold', state: React.useState(false) },
+    { label: 'Italic', state: React.useState(true) },
+    { label: 'Underline', state: React.useState(false) },
+    { label: 'Strikethrough', state: React.useState(false), disabled: true },
+  ];
+  return (
+    <Menu>
+      <MenuItem className={itemClass} onSelect={() => window.alert('undo')}>
+        Undo
+      </MenuItem>
+      <MenuItem className={itemClass} onSelect={() => window.alert('redo')}>
+        Redo
+      </MenuItem>
+      <MenuSeparator className={separatorClass} />
+
+      <SubMenu heading="Nested">
+        <MenuItem className={itemClass} disabled>
+          Disabled
+        </MenuItem>
+        <MenuSeparator className={separatorClass} />
+
+        <SubMenu heading="Clipboard">
+          <MenuItem className={itemClass} onSelect={() => window.alert('copy')}>
+            Copy
+          </MenuItem>
+          <MenuItem className={itemClass} onSelect={() => window.alert('paste')}>
+            Paste
+          </MenuItem>
+        </SubMenu>
+
+        <MenuItem className={itemClass} onSelect={() => window.alert('edit')}>
+          Edit
+        </MenuItem>
+
+        <MenuItem className={itemClass} onSelect={() => window.alert('update')}>
+          Update
+        </MenuItem>
+      </SubMenu>
+
+      <SubMenu heading="Checkboxs">
+        {checkboxItems.map(({ label, state: [checked, setChecked], disabled }) => (
+          <MenuCheckboxItem
+            key={label}
+            className={itemClass}
+            checked={checked}
+            onCheckedChange={setChecked}
+            disabled={disabled}
+          >
+            {label}
+            <MenuItemIndicator>
+              <TickIcon />
+            </MenuItemIndicator>
+          </MenuCheckboxItem>
+        ))}
+      </SubMenu>
+
+      <SubMenu heading="Radios">
+        <MenuRadioGroup value={file} onValueChange={setFile}>
+          {files.map((file) => (
+            <MenuRadioItem key={file} className={itemClass} value={file}>
+              {file}
+              <MenuItemIndicator>
+                <TickIcon />
+              </MenuItemIndicator>
+            </MenuRadioItem>
+          ))}
+        </MenuRadioGroup>
+      </SubMenu>
+      <MenuSeparator className={separatorClass} />
+      <SubMenu heading="Disabled" disabled>
+        <MenuItem className={itemClass}>Item</MenuItem>
+      </SubMenu>
+    </Menu>
+  );
+};
+
+const SubMenu: React.FC<
+  React.ComponentProps<typeof MenuSubMenu> & { heading?: string; disabled?: boolean }
+> = (props) => {
+  const { children, heading = 'Sub Menu', disabled, ...subMenuProps } = props;
+  return (
+    <MenuSubMenu {...subMenuProps}>
+      <MenuSubMenuTrigger className={itemClass} disabled={disabled}>
+        {heading} →
+      </MenuSubMenuTrigger>
+      <MenuSubMenuContent className={contentClass}>{children}</MenuSubMenuContent>
+    </MenuSubMenu>
+  );
+};
+
 type MenuOwnProps = Omit<
   React.ComponentProps<typeof MenuPrimitive> & React.ComponentProps<typeof MenuContent>,
   | 'onOpenChange'
@@ -326,6 +423,15 @@ const itemClass = css({
     outline: 'none',
     backgroundColor: '$black',
     color: 'white',
+  },
+
+  '&[data-state="open"]': {
+    '&:hover': {
+      backgroundColor: '$black',
+      color: 'white',
+    },
+    outline: 'none',
+    backgroundColor: '$gray100',
   },
 
   '&[data-disabled]': {
