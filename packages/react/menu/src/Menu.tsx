@@ -669,9 +669,12 @@ const MenuSubMenu: React.FC<MenuSubMenuOwnProps> = (props) => {
     onChange: onOpenChange,
   });
 
-  // we defer rendering of nested children until after the parent is ready
-  // this is to ensure that measurements are applied correctly relative to the parent and
-  // that dismissable layers are appended in the correct order when using controlled props
+  /**
+   * We defer rendering of child elements until ready, this ensures the following:
+   *
+   * - That measurements are applied correctly to children relative to parent
+   * - That dismissable layers are appended in the correct order when using controlled props
+   */
   useLayoutEffect(() => {
     setRenderChildren(true);
   }, []);
@@ -736,22 +739,25 @@ const MenuSubMenuContent = React.forwardRef((props, forwardedRef) => {
       })}
       onKeyDown={composeEventHandlers(contentProps.onKeyDown, (event) => {
         if (event.key === 'ArrowLeft') {
-          // only close a single level
+          // Close a single level
           event.stopPropagation();
           context.onOpenChange(false);
           trigger?.focus();
         }
       })}
       onEscapeKeyDown={composeEventHandlers(contentProps.onEscapeKeyDown, () => trigger?.focus())}
-      // prevent focusing previous element on close
-      // this is important because we don't want to refocus menu triggers
-      // when mouse scrubbing
+      /**
+       * Prevent focusing previous element on close.
+       * We don't want the focus to flicker back and forth between the content and trigger when mouse scrubbing.
+       */
       onCloseAutoFocus={composeEventHandlers(contentProps.onCloseAutoFocus, (event) =>
         event.preventDefault()
       )}
+      /**
+       * Prevent needlessly dismissing the menu when clicking the trigger
+       * The menu should always stay open while the mouse is hovering
+       */
       onPointerDownOutside={composeEventHandlers(contentProps.onPointerDownOutside, (event) => {
-        // the sub menu will remain open while the mouse is over the trigger
-        // so we prevent it needlessly dismissing when clicking it
         if (trigger?.contains(event.target as HTMLElement)) {
           event.preventDefault();
         }
@@ -798,7 +804,7 @@ const MenuSubMenuTrigger = React.forwardRef((props, forwardedRef) => {
           event.stopPropagation();
         })}
         onMouseMove={composeEventHandlers(triggerProps.onMouseMove, (event) => {
-          // prevent refocusing trigger which causes premature menu close
+          // Prevent refocusing trigger which causes premature menu close
           event.preventDefault();
 
           if (!disabled && !mouseInteracting && !context.open) {
@@ -807,12 +813,15 @@ const MenuSubMenuTrigger = React.forwardRef((props, forwardedRef) => {
           }
         })}
         onMouseLeave={composeEventHandlers(triggerProps.onMouseLeave, (event) => {
-          // prevent focusing content which causes premature menu close
+          // Prevent focusing content which causes premature menu close
           event.preventDefault();
           setMouseInteracting(false);
         })}
-        // hook into focus to prevent stuck open state after browser chrome takes focus e.g. devtools inspect overlay
-        // this is because mouse events will continue to fire while the focus closing mechanism in `DismissableLayer` does not
+        /**
+         * We hook into focus to control menu visibility rather than mouse events
+         * This solves a sticky open state problem when certain browser controls (e.g. devtools inspect overlay) are given focus
+         * This is because mouse events continue to fire while `onDismiss` in `DismissableLayer` won't get called due to it being a focus outside check
+         */
         onFocus={composeEventHandlers(triggerProps.onFocus, (event) => {
           if (mouseInteracting) subMenuContext.onMouseOpen();
         })}
