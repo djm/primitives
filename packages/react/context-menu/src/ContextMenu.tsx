@@ -133,6 +133,24 @@ const ContextMenuContent = React.forwardRef((props, forwardedRef) => {
 
 ContextMenuContent.displayName = CONTENT_NAME;
 
+/* -------------------------------------------------------------------------------------------------
+ * ContextSubMenu
+ * -----------------------------------------------------------------------------------------------*/
+
+const SUB_MENU_NAME = 'ContextSubMenu';
+
+type ContextSubMenuOwnProps = {
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?(open: boolean): void;
+};
+
+const ContextSubMenu: React.FC<ContextSubMenuOwnProps> = (props) => {
+  return <MenuPrimitive.SubMenu {...props} />;
+};
+
+ContextSubMenu.displayName = SUB_MENU_NAME;
+
 /* ---------------------------------------------------------------------------------------------- */
 
 const ContextMenuGroup = extendPrimitive(MenuPrimitive.Group, { displayName: 'ContextMenuGroup' });
@@ -153,6 +171,15 @@ const ContextMenuItemIndicator = extendPrimitive(MenuPrimitive.ItemIndicator, {
 const ContextMenuSeparator = extendPrimitive(MenuPrimitive.Separator, {
   displayName: 'ContextMenuSeparator',
 });
+const ContextMenuArrow = extendPrimitive(MenuPrimitive.Arrow, {
+  displayName: 'ContextMenuArrow',
+});
+const ContextSubMenuContent = extendPrimitive(MenuPrimitive.SubMenuContent, {
+  displayName: 'ContextSubMenuContent',
+});
+const ContextSubMenuTrigger = extendPrimitive(MenuPrimitive.SubMenuTrigger, {
+  displayName: 'ContextSubMenuTrigger',
+});
 
 /* -----------------------------------------------------------------------------------------------*/
 
@@ -167,6 +194,10 @@ const RadioGroup = ContextMenuRadioGroup;
 const RadioItem = ContextMenuRadioItem;
 const ItemIndicator = ContextMenuItemIndicator;
 const Separator = ContextMenuSeparator;
+const Arrow = ContextMenuArrow;
+const SubMenu = ContextSubMenu;
+const SubMenuContent = ContextSubMenuContent;
+const SubMenuTrigger = ContextSubMenuTrigger;
 
 export {
   ContextMenu,
@@ -180,6 +211,10 @@ export {
   ContextMenuRadioItem,
   ContextMenuItemIndicator,
   ContextMenuSeparator,
+  ContextMenuArrow,
+  ContextSubMenu,
+  ContextSubMenuContent,
+  ContextSubMenuTrigger,
   //
   Root,
   Trigger,
@@ -192,4 +227,8 @@ export {
   RadioItem,
   ItemIndicator,
   Separator,
+  Arrow,
+  SubMenu,
+  SubMenuContent,
+  SubMenuTrigger,
 };

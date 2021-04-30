@@ -11,6 +11,10 @@ import {
   ContextMenuRadioItem,
   ContextMenuItemIndicator,
   ContextMenuSeparator,
+  ContextMenuArrow,
+  ContextSubMenu,
+  ContextSubMenuTrigger,
+  ContextSubMenuContent,
 } from './ContextMenu';
 import { css } from '../../../../stitches.config';
 import { foodGroups } from '../../../../test-data/foods';
@@ -170,6 +174,64 @@ export const RadioItems = () => {
   );
 };
 
+export const Submenus = () => {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '200vw',
+        height: '200vh',
+        gap: 20,
+      }}
+    >
+      <ContextMenu onOpenChange={setOpen}>
+        <ContextMenuTrigger
+          className={triggerClass}
+          style={{ background: open ? 'lightblue' : undefined }}
+        />
+        <ContextMenuContent className={contentClass} sideOffset={-5}>
+          <ContextMenuItem className={itemClass} onSelect={() => console.log('undo')}>
+            Undo
+          </ContextMenuItem>
+          <ContextMenuItem className={itemClass} onSelect={() => console.log('redo')}>
+            Redo
+          </ContextMenuItem>
+          <SubMenu heading="Foods">
+            {foodGroups
+              .filter((foodGroup) => foodGroup.label)
+              .map((foodGroup) => (
+                <SubMenu heading={foodGroup.label} key={foodGroup.label}>
+                  {foodGroup.foods.map((food) => (
+                    <ContextMenuItem
+                      className={itemClass}
+                      onSelect={() => console.log(food.value)}
+                      key={food.value}
+                    >
+                      {food.label}
+                    </ContextMenuItem>
+                  ))}
+                </SubMenu>
+              ))}
+          </SubMenu>
+          <ContextMenuSeparator className={separatorClass} />
+          <ContextMenuItem className={itemClass} disabled onSelect={() => console.log('cut')}>
+            Cut
+          </ContextMenuItem>
+          <ContextMenuItem className={itemClass} onSelect={() => console.log('copy')}>
+            Copy
+          </ContextMenuItem>
+          <ContextMenuItem className={itemClass} onSelect={() => console.log('paste')}>
+            Paste
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
+    </div>
+  );
+};
+
 export const PreventClosing = () => (
   <div style={{ textAlign: 'center', padding: 50 }}>
     <ContextMenu>
@@ -301,6 +363,23 @@ export const Nested = () => (
     </ContextMenu>
   </div>
 );
+
+const SubMenu: React.FC<
+  React.ComponentProps<typeof ContextSubMenu> & { heading?: string; disabled?: boolean }
+> = (props) => {
+  const { children, heading = 'Sub Menu', disabled, ...subMenuProps } = props;
+  return (
+    <ContextSubMenu {...subMenuProps}>
+      <ContextSubMenuTrigger className={itemClass} disabled={disabled}>
+        {heading} →
+      </ContextSubMenuTrigger>
+      <ContextSubMenuContent className={contentClass} sideOffset={10} alignOffset={-5}>
+        <ContextMenuArrow offset={13} />
+        {children}
+      </ContextSubMenuContent>
+    </ContextSubMenu>
+  );
+};
 
 const triggerClass = css({
   display: 'block',
