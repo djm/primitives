@@ -218,12 +218,12 @@ const ScrollAreaScrollbar = React.forwardRef((props, forwardedRef) => {
     };
   }, [isHorizontal, onScrollbarXEnabledChange, onScrollbarYEnabledChange]);
 
-  return context.type === 'auto' ? (
-    <ScrollAreaScrollbarAuto {...props} ref={forwardedRef} />
-  ) : context.type === 'hover' ? (
+  return context.type === 'hover' ? (
     <ScrollAreaScrollbarHover {...props} ref={forwardedRef} />
   ) : context.type === 'scroll' ? (
     <ScrollAreaScrollbarScroll {...props} ref={forwardedRef} />
+  ) : context.type === 'auto' ? (
+    <ScrollAreaScrollbarAuto {...props} ref={forwardedRef} />
   ) : context.type === 'always' ? (
     <ScrollAreaScrollbarVisible {...props} ref={forwardedRef} />
   ) : null;
@@ -242,27 +242,6 @@ type ScrollAreaScrollbarOptionalPrimitive = Polymorphic.ForwardRefComponent<
   ScrollAreaScrollbarOptionalOwnProps
 >;
 
-const ScrollAreaScrollbarAuto = React.forwardRef((props, forwardedRef) => {
-  const context = useScrollAreaContext(SCROLLBAR_NAME);
-  const { forceMount, ...scrollbarProps } = props;
-  const [visible, setVisible] = React.useState(false);
-  const isHorizontal = props.orientation === 'horizontal';
-
-  useResizeObserver(context.viewport, () => {
-    if (context.viewport) {
-      const isOverflowX = context.viewport.offsetWidth < context.viewport.scrollWidth;
-      const isOverflowY = context.viewport.offsetHeight < context.viewport.scrollHeight;
-      setVisible(isHorizontal ? isOverflowX : isOverflowY);
-    }
-  });
-
-  return (
-    <Presence present={forceMount || visible}>
-      <ScrollAreaScrollbarVisible {...scrollbarProps} ref={forwardedRef} />
-    </Presence>
-  );
-}) as ScrollAreaScrollbarOptionalPrimitive;
-
 const ScrollAreaScrollbarHover = React.forwardRef((props, forwardedRef) => {
   const { forceMount, ...scrollbarProps } = props;
   const context = useScrollAreaContext(SCROLLBAR_NAME);
@@ -270,9 +249,18 @@ const ScrollAreaScrollbarHover = React.forwardRef((props, forwardedRef) => {
 
   React.useEffect(() => {
     const scrollArea = context.scrollArea;
+    let hideTimer = 0;
     if (scrollArea) {
-      const handlePointerEnter = () => setVisible(true);
-      const handlePointerLeave = () => setVisible(false);
+      const handlePointerEnter = () => {
+        clearTimeout(hideTimer);
+        setVisible(true);
+      };
+      const handlePointerLeave = () => {
+        hideTimer = window.setTimeout(() => {
+          setVisible(false);
+          console.log('leave');
+        }, context.scrollHideDelay);
+      };
       scrollArea.addEventListener('pointerenter', handlePointerEnter);
       scrollArea.addEventListener('pointerleave', handlePointerLeave);
       return () => {
@@ -280,11 +268,11 @@ const ScrollAreaScrollbarHover = React.forwardRef((props, forwardedRef) => {
         scrollArea.removeEventListener('pointerleave', handlePointerLeave);
       };
     }
-  }, [context.scrollArea]);
+  }, [context.scrollArea, context.scrollHideDelay]);
 
   return (
     <Presence present={forceMount || visible}>
-      <ScrollAreaScrollbarVisible {...scrollbarProps} ref={forwardedRef} />
+      <ScrollAreaScrollbarAuto {...scrollbarProps} ref={forwardedRef} />
     </Presence>
   );
 }) as ScrollAreaScrollbarOptionalPrimitive;
@@ -352,6 +340,27 @@ const ScrollAreaScrollbarScroll = React.forwardRef((props, forwardedRef) => {
           send('SCROLLBAR_POINTER_LEAVE');
         })}
       />
+    </Presence>
+  );
+}) as ScrollAreaScrollbarOptionalPrimitive;
+
+const ScrollAreaScrollbarAuto = React.forwardRef((props, forwardedRef) => {
+  const context = useScrollAreaContext(SCROLLBAR_NAME);
+  const { forceMount, ...scrollbarProps } = props;
+  const [visible, setVisible] = React.useState(false);
+  const isHorizontal = props.orientation === 'horizontal';
+
+  useResizeObserver(context.viewport, () => {
+    if (context.viewport) {
+      const isOverflowX = context.viewport.offsetWidth < context.viewport.scrollWidth;
+      const isOverflowY = context.viewport.offsetHeight < context.viewport.scrollHeight;
+      setVisible(isHorizontal ? isOverflowX : isOverflowY);
+    }
+  });
+
+  return (
+    <Presence present={forceMount || visible}>
+      <ScrollAreaScrollbarVisible {...scrollbarProps} ref={forwardedRef} />
     </Presence>
   );
 }) as ScrollAreaScrollbarOptionalPrimitive;
