@@ -12,6 +12,9 @@ import {
   DropdownMenuItemIndicator,
   DropdownMenuSeparator,
   DropdownMenuArrow,
+  DropdownSubMenu,
+  DropdownSubMenuTrigger,
+  DropdownSubMenuContent,
 } from './DropdownMenu';
 import { SIDE_OPTIONS, ALIGN_OPTIONS } from '@radix-ui/popper';
 import { css } from '../../../../stitches.config';
@@ -161,6 +164,51 @@ export const RadioItems = () => {
   );
 };
 
+export const Submenus = () => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '200vh' }}>
+    <DropdownMenu>
+      <DropdownMenuTrigger className={triggerClass}>Open</DropdownMenuTrigger>
+      <DropdownMenuContent className={contentClass} sideOffset={5}>
+        <DropdownMenuItem className={itemClass} onSelect={() => console.log('undo')}>
+          Undo
+        </DropdownMenuItem>
+        <DropdownMenuItem className={itemClass} onSelect={() => console.log('redo')}>
+          Redo
+        </DropdownMenuItem>
+        <SubMenu heading="Foods">
+          {foodGroups
+            .filter((foodGroup) => foodGroup.label)
+            .map((foodGroup) => (
+              <SubMenu heading={foodGroup.label} key={foodGroup.label}>
+                {foodGroup.foods.map((food) => (
+                  <DropdownMenuItem
+                    className={itemClass}
+                    onSelect={() => console.log(food.value)}
+                    key={food.value}
+                  >
+                    {food.label}
+                  </DropdownMenuItem>
+                ))}
+              </SubMenu>
+            ))}
+        </SubMenu>
+        <DropdownMenuSeparator className={separatorClass} />
+        <DropdownMenuItem className={itemClass} disabled onSelect={() => console.log('cut')}>
+          Cut
+        </DropdownMenuItem>
+        <DropdownMenuItem className={itemClass} onSelect={() => console.log('copy')}>
+          Copy
+        </DropdownMenuItem>
+        <DropdownMenuItem className={itemClass} onSelect={() => console.log('paste')}>
+          Paste
+        </DropdownMenuItem>
+
+        <DropdownMenuArrow />
+      </DropdownMenuContent>
+    </DropdownMenu>
+  </div>
+);
+
 export const PreventClosing = () => (
   <div style={{ textAlign: 'center', padding: 50 }}>
     <DropdownMenu>
@@ -183,6 +231,23 @@ export const PreventClosing = () => (
     </DropdownMenu>
   </div>
 );
+
+const SubMenu: React.FC<
+  React.ComponentProps<typeof DropdownSubMenu> & { heading?: string; disabled?: boolean }
+> = (props) => {
+  const { children, heading = 'Sub Menu', disabled, ...subMenuProps } = props;
+  return (
+    <DropdownSubMenu {...subMenuProps}>
+      <DropdownSubMenuTrigger className={itemClass} disabled={disabled}>
+        {heading} →
+      </DropdownSubMenuTrigger>
+      <DropdownSubMenuContent className={contentClass} sideOffset={10} alignOffset={-5}>
+        <DropdownMenuArrow offset={13} />
+        {children}
+      </DropdownSubMenuContent>
+    </DropdownSubMenu>
+  );
+};
 
 // change order slightly for more pleasing visual
 const SIDES = SIDE_OPTIONS.filter((side) => side !== 'bottom').concat(['bottom']);

@@ -171,6 +171,18 @@ const DropdownMenuContent = React.forwardRef((props, forwardedRef) => {
 
 DropdownMenuContent.displayName = CONTENT_NAME;
 
+/* -------------------------------------------------------------------------------------------------
+ * DropdownSubMenu
+ * -----------------------------------------------------------------------------------------------*/
+
+const SUB_MENU_NAME = 'DropdownSubMenu';
+
+const DropdownSubMenu: React.FC<DropdownMenuOwnProps> = (props) => {
+  return <MenuPrimitive.SubMenu {...props} />;
+};
+
+DropdownSubMenu.displayName = SUB_MENU_NAME;
+
 /* ---------------------------------------------------------------------------------------------- */
 
 const DropdownMenuGroup = extendPrimitive(MenuPrimitive.Group, {
@@ -198,6 +210,12 @@ const DropdownMenuSeparator = extendPrimitive(MenuPrimitive.Separator, {
 const DropdownMenuArrow = extendPrimitive(MenuPrimitive.Arrow, {
   displayName: 'DropdownMenuArrow',
 });
+const DropdownSubMenuContent = extendPrimitive(MenuPrimitive.SubMenuContent, {
+  displayName: 'DropdownSubMenuContent',
+});
+const DropdownSubMenuTrigger = extendPrimitive(MenuPrimitive.SubMenuTrigger, {
+  displayName: 'DropdownSubMenuTrigger',
+});
 
 /* -----------------------------------------------------------------------------------------------*/
 
@@ -213,6 +231,9 @@ const RadioItem = DropdownMenuRadioItem;
 const ItemIndicator = DropdownMenuItemIndicator;
 const Separator = DropdownMenuSeparator;
 const Arrow = DropdownMenuArrow;
+const SubMenu = DropdownSubMenu;
+const SubMenuContent = DropdownSubMenuContent;
+const SubMenuTrigger = DropdownSubMenuTrigger;
 
 export {
   DropdownMenu,
@@ -227,6 +248,9 @@ export {
   DropdownMenuItemIndicator,
   DropdownMenuSeparator,
   DropdownMenuArrow,
+  DropdownSubMenu,
+  DropdownSubMenuContent,
+  DropdownSubMenuTrigger,
   //
   Root,
   Trigger,
@@ -240,4 +264,7 @@ export {
   ItemIndicator,
   Separator,
   Arrow,
+  SubMenu,
+  SubMenuContent,
+  SubMenuTrigger,
 };
